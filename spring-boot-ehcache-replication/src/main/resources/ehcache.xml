@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ehcache>
+	<diskStore path="java.io.tmpdir" />
+
+	<cacheManagerPeerProviderFactory
+		class="net.sf.ehcache.distribution.jms.JMSCacheManagerPeerProviderFactory"
+		properties="initialContextFactoryName=com.springboot.cache.config.TestActiveMQInitialContextFactory,
+					providerURL=tcp://127.0.0.1:61616, 
+					replicationTopicConnectionFactoryBindingName=topicConnectionFactory,
+					replicationTopicBindingName=ehcache, 
+					getQueueConnectionFactoryBindingName=queueConnectionFactory,
+					getQueueBindingName=ehcacheGetQueue, 
+					topicConnectionFactoryBindingName=topicConnectionFactory,
+					topicBindingName=ehcache"
+		propertySeparator="," />
+
+	<cache name="person" maxElementsInMemory="10" eternal="false"
+		timeToIdleSeconds="20" timeToLiveSeconds="20" overflowToDisk="false">
+
+		<cacheEventListenerFactory
+			class="net.sf.ehcache.distribution.jms.JMSCacheReplicatorFactory"
+			properties="replicateAsynchronously=true,
+						replicatePuts=true,
+						replicateUpdates=true,
+						replicateUpdatesViaCopy=true,
+						replicateRemovals=true,
+						asynchronousReplicationIntervalMillis=1000"
+			propertySeparator="," />
+
+		<cacheLoaderFactory
+			class="net.sf.ehcache.distribution.jms.JMSCacheLoaderFactory"
+			properties="initialContextFactoryName=com.springboot.cache.config.TestActiveMQInitialContextFactory,
+						providerURL=tcp://127.0.0.1:61616,
+						replicationTopicConnectionFactoryBindingName=topicConnectionFactory,
+						getQueueConnectionFactoryBindingName=queueConnectionFactory,
+						replicationTopicBindingName=ehcache,
+						getQueueBindingName=ehcacheGetQueue,
+						timeoutMillis=10000" />
+	</cache>
+</ehcache>
